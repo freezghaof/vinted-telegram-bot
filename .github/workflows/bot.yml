@@ -7,33 +7,33 @@ jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
-      # 🔹 1. Récupérer le code du repo
+      # 1️⃣ Checkout repo
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 🔹 2. Installer Python
+      # 2️⃣ Setup Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # 🔹 3. Installer les dépendances
+      # 3️⃣ Installer dépendances
       - name: Install dependencies
         run: pip install requests python-dotenv
 
-      # 🔹 4. Lancer le bot
+      # 4️⃣ Lancer le bot
       - name: Run bot
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python bot.py
 
-      # 🔹 5. Relancer le workflow automatiquement
+      # 5️⃣ Relancer le workflow automatiquement
       - name: Relaunch workflow
-        if: always()  # même si le bot plante ou s'arrête
-        uses: peter-evans/workflow-dispatch@v1
+        if: always()
+        uses: peter-evans/workflow-dispatch@v1.2.0
         with:
-          workflow: run_vinted_bot.yml   # nom exact de ce fichier YAML
+          workflow: run_vinted_bot.yml  # nom exact du fichier YAML
           ref: main
-          inputs: '{}'
+          inputs: {}
           token: ${{ secrets.GITHUB_TOKEN }}

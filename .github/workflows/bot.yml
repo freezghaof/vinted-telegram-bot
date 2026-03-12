@@ -1,37 +1,34 @@
 name: Run Vinted Bot
 
 on:
-  schedule:
-    - cron: "* * * * *"  # toutes les minutes
-  workflow_dispatch:      # permet de lancer manuellement
+  workflow_dispatch:
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-
     steps:
-      # 🔹 Récupérer le code
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 🔹 Installer Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.11"
 
-      # 🔹 Installer dépendances
       - name: Install dependencies
         run: pip install requests python-dotenv
 
-      # 🔹 Lancer le bot plusieurs fois par workflow
-      - name: Run Vinted Bot multiple scans
+      - name: Run bot
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          for i in {1..5}; do
-            python bot.py
-            echo "Scan $i terminé"
-            sleep 10
-          done
+        run: python bot.py
+
+      - name: Relaunch workflow
+        if: always()
+        uses: peter-evans/workflow-dispatch@v2
+        with:
+          workflow: Run Vinted Bot.yml   # nom exact du workflow
+          ref: main
+          inputs: {}
+          token: ${{ secrets.GITHUB_TOKEN }}

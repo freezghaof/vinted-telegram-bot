@@ -31,7 +31,7 @@ jobs:
       # 🔹 5. Relancer le workflow automatiquement
       - name: Relaunch workflow
         if: always()  # même si le bot plante ou s'arrête
-        uses: peter-evans/workflow-dispatch@v2
+        uses: peter-evans/workflow-dispatch@v1
         with:
           workflow: run_vinted_bot.yml   # nom exact de ce fichier YAML
           ref: main

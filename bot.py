@@ -1,6 +1,6 @@
-import time
 import requests
 import os
+import json
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -8,7 +8,6 @@ load_dotenv()
 TOKEN = os.getenv("TELEGRAM_TOKEN")
 CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-seen = set()
 BOT_ACTIVE = True  # par défaut le bot tourne
 
 API_URL = "https://www.vinted.fr/api/v2/catalog/items"
@@ -27,18 +26,28 @@ session.headers.update({
     "Referer": "https://www.vinted.fr/",
 })
 
+# 🔹 Charger seen depuis fichier
+if os.path.exists("seen.json"):
+    with open("seen.json", "r") as f:
+        seen = set(json.load(f))
+else:
+    seen = set()
+
 
 def send_telegram(title, price, url, image):
     caption = f"👕 {title}\n💰 Prix : {price}€\n🔗 {url}"
-    requests.post(
-        f"https://api.telegram.org/bot{TOKEN}/sendPhoto",
-        data={
-            "chat_id": CHAT_ID,
-            "photo": image,
-            "caption": caption
-        }
-    )
-    print("Envoyé :", title, price)
+    try:
+        requests.post(
+            f"https://api.telegram.org/bot{TOKEN}/sendPhoto",
+            data={
+                "chat_id": CHAT_ID,
+                "photo": image,
+                "caption": caption
+            }
+        )
+        print("Envoyé :", title, price)
+    except Exception as e:
+        print("Erreur Telegram :", e)
 
 
 def check_updates():
@@ -91,12 +100,12 @@ def check_updates():
                 )
                 print("Bot arrêté ⏹️")
 
-            # 🔹 Marquer les updates comme lus pour éviter de bloquer le bot
+            # 🔹 Marquer les updates comme lus
             last_update_id = data["result"][-1]["update_id"]
             requests.get(f"https://api.telegram.org/bot{TOKEN}/getUpdates?offset={last_update_id + 1}")
 
     except Exception as e:
-        print("Erreur check_updates:", e) 
+        print("Erreur check_updates:", e)
 
 
 def scan_vinted():
@@ -124,15 +133,18 @@ def scan_vinted():
 
         send_telegram(title, price, url, image)
 
+    # 🔹 Sauvegarder seen pour éviter doublons
+    with open("seen.json", "w") as f:
+        json.dump(list(seen), f)
 
-# Boucle principale
-while True:
-    check_updates()  # récupère les nouveaux messages et met à jour prix/catégorie/start/stop
-    if BOT_ACTIVE:
-        try:
-            scan_vinted()
-        except Exception as e:
-            print("Erreur :", e)
-    else:
-        print("Bot en pause... ⏸️")
-    time.sleep(20)
+
+# 🔹 Exécution unique (GitHub Actions friendly)
+check_updates()
+
+if BOT_ACTIVE:
+    try:
+        scan_vinted()
+    except Exception as e:
+        print("Erreur :", e)
+else:
+    print("Bot en pause... ⏸️")

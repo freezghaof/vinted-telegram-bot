@@ -16,7 +16,7 @@ PARAMS = {
     "search_text": "jeans",
     "price_to": 20,
     "order": "newest_first",
-    "per_page": 20
+    "per_page": 50
 }
 
 session = requests.Session()

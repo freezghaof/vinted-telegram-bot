@@ -126,14 +126,16 @@ def scan_vinted():
 
 
 # Boucle principale
+# Boucle principale adaptée pour GitHub Actions
 while True:
     check_updates()  # récupère les nouveaux messages et met à jour prix/catégorie/start/stop
     if BOT_ACTIVE:
         try:
             scan_vinted()
         except Exception as e:
-            print("Erreur :", e)
+            print("Erreur scan_vinted :", e)
     else:
         print("Bot en pause... ⏸️")
+    
+    # Pause entre chaque cycle pour éviter d'être trop agressif
     time.sleep(20)
-    time.sleep(SLEEP_BETWEEN)

@@ -1,39 +1,39 @@
 name: Run Vinted Bot
 
 on:
-  workflow_dispatch:  # lancement manuel
+  workflow_dispatch:  
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
-      # 1️⃣ Checkout repo
+      
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # 2️⃣ Setup Python
+      
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
 
-      # 3️⃣ Installer dépendances
+      
       - name: Install dependencies
         run: pip install requests python-dotenv
 
-      # 4️⃣ Lancer le bot
+      
       - name: Run bot
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python bot.py
 
-      # 5️⃣ Relancer le workflow automatiquement
+      
       - name: Relaunch workflow
         if: always()
         uses: peter-evans/workflow-dispatch@v1.2.0
         with:
-          workflow: run_vinted_bot.yml  # nom exact du fichier YAML
+          workflow: run_vinted_bot.yml  
           ref: main
           inputs: {}
           token: ${{ secrets.GITHUB_TOKEN }}

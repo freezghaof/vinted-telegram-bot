@@ -52,16 +52,14 @@ def save_seen():
     with open("seen.json", "w") as f:
         json.dump(list(seen), f)
 
+def send_message(chat_id, text):
+    requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage",
+                  data={"chat_id": chat_id, "text": text})
+
 def send_telegram(title, price, url, image):
     caption = f"👕 {title}\n💰 Prix : {price}€\n🔗 {url}"
-    requests.post(
-        f"https://api.telegram.org/bot{TOKEN}/sendPhoto",
-        data={
-            "chat_id": CHAT_ID,
-            "photo": image,
-            "caption": caption
-        }
-    )
+    requests.post(f"https://api.telegram.org/bot{TOKEN}/sendPhoto",
+                  data={"chat_id": CHAT_ID, "photo": image, "caption": caption})
     print("Envoyé :", title, price)
 
 def check_updates():
@@ -107,9 +105,6 @@ def check_updates():
     except Exception as e:
         print("Erreur check_updates:", e)
 
-def send_message(chat_id, text):
-    requests.post(f"https://api.telegram.org/bot{TOKEN}/sendMessage", data={"chat_id": chat_id, "text": text})
-
 def scan_vinted():
     session.get("https://www.vinted.fr/")
     r = session.get(API_URL, params=PARAMS)
@@ -132,7 +127,7 @@ def scan_vinted():
 
 # --- Boucle principale pour plusieurs scans ---
 NUM_SCANS = 5
-SLEEP_BETWEEN = 20  # secondes
+SLEEP_BETWEEN = 10  # secondes
 for _ in range(NUM_SCANS):
     check_updates()
     if BOT_ACTIVE:
